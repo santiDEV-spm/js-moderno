@@ -5,9 +5,6 @@
  *  2S = Two of Spades
 */
 
-
-
-
 let deck = [];
 const tipos = ['C','D','H','S'];
 const especiales = ['A','J','Q','K'];
@@ -16,10 +13,14 @@ let puntosJugador = 0,
 
 //referencias html
 const btnPedir = document.querySelector('#btnPedir');
+const btnDetener = document.querySelector('#btnDetener');
+const btnNuevo = document.querySelector('#btnNuevo');
 const marcadores = document.querySelectorAll('small');
 const divCartasJugador = document.querySelector('#jugador-cartas');
-const marcadorJugador = marcadores[0];
-const marcadorComputadora = marcadores[1];
+const divCartasComputadora = document.querySelector('#computadora-cartas');
+
+let marcadorJugador = marcadores[0];
+let marcadorComputadora = marcadores[1];
 
 
 //funcion crea un nuevo deck
@@ -69,6 +70,36 @@ const valorCarta = (carta) => {
 };
 
 
+//turno de la computadora
+const turnoComputadora = (puntosJugador) => {
+    do{
+        const carta = pedirCarta();
+        puntosComputadora = puntosComputadora + valorCarta(carta);
+        marcadorComputadora.innerText = puntosComputadora;
+        const imgCarta = document.createElement('img');
+        imgCarta.src = `assets/cartas/${carta}.png`;
+        imgCarta.classList.add('carta');
+        divCartasComputadora.append(imgCarta);
+
+        if(puntosJugador > 21){
+            break;
+        }
+
+    }while((puntosComputadora < puntosJugador) && (puntosJugador <= 21));
+
+    if(puntosComputadora === puntosJugador){
+        setTimeout(()=>{
+            swal("Oops!", "Nadie gana!!!", "warning");
+        }, 1000);
+    }else if(puntosJugador > 21){
+        swal("Oops!", "Computadora gana!!!", "error");
+    }else if(puntosComputadora > 21){
+        swal("Felicidades!", "Eres un ganador!!!", "success");
+    }else{
+        swal("Oops!", "Computadora gana!!!", "error");
+    }    
+}
+
 
 //Eventos
 btnPedir.addEventListener('click', () => {
@@ -81,13 +112,34 @@ btnPedir.addEventListener('click', () => {
     divCartasJugador.append(imgCarta);
 
     if(puntosJugador === 21){
-        swal("Llegaste a 21", "El triunfo casi es tuyo", "warning");
         btnPedir.disabled = true;
+        btnDetener.disabled = true;
+        turnoComputadora(puntosJugador);
     }else if(puntosJugador > 21){
-        swal("Oops!", "lo siento perdiste!!!", "error");
         btnPedir.disabled = true;
+        btnDetener.disabled = true;
+        turnoComputadora(puntosJugador);
     }
 
+});
+
+btnDetener.addEventListener('click', ()=>{
+    btnPedir.disabled = true;
+    btnDetener.disabled = true;
+    turnoComputadora(puntosJugador);
+});
+
+btnNuevo.addEventListener('click', ()=>{
+    deck = [];
+    deck = crearDeck();
+    puntosJugador = 0;
+    puntosComputadora = 0;
+    marcadorComputadora.innerText = 0;
+    marcadorJugador.innerText = 0;
+    divCartasComputadora.innerHTML = '';
+    divCartasJugador.innerHTML = '';
+    btnPedir.disabled = false;
+    btnDetener.disabled = false; 
 });
 
 
